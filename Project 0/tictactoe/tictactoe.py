@@ -75,6 +75,7 @@ def result(board, action):
         raise Exception("bad input")
 
     new_board[action[0]][action[1]] = playerr
+    # print("new", new_board)
     return new_board
 
 
@@ -82,6 +83,7 @@ def winner(board):
     """
     Returns the winner of the game, if there is one.
     """
+    # print("m", board)
     for i in range(3):
         if board[i][0] == board[i][1] and board[i][1] == board[i][2]:
             return board[i][0]
@@ -103,6 +105,7 @@ def terminal(board):
     """
     Returns True if game is over, False otherwise.
     """
+    # print("t", board)
     s = winner(board)
 
     if s == X or s == O:
@@ -127,8 +130,40 @@ def utility(board):
     return 0
 
 
+def min_value(board):
+    if terminal(board):
+        return utility(board), (-1, -1)
+    v = 10
+    selected_action = None
+    for action in actions(board):
+        m = max_value(result(board, action))
+        # print(m[0])
+        if m[0] < v:
+            v = m[0]
+            selected_action = action
+    return v, selected_action
+
+
+def max_value(board):
+    if terminal(board):
+        return utility(board), (-1, -1)
+    v = -10
+    selected_action = None
+
+    for action in actions(board):
+        m = min_value(result(board, action))
+        if m[0] > v:
+            v = m[0]
+            selected_action = action
+    return v, selected_action
+
+
 def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
-    raise NotImplementedError
+    if terminal(board):
+        return None
+    if player(board) == X:
+        return max_value(board)[1]
+    return min_value(board)[1]
